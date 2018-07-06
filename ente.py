@@ -1,3 +1,5 @@
+# coding=utf-8
+
 from telegram.ext import CommandHandler, MessageHandler, Filters, Updater
 from telegram.parsemode import ParseMode as ParseMode
 import json
@@ -36,9 +38,9 @@ def original_ente(bot, update):
     def in_text(keywords):
         return any(k in text for k in keywords)
 
-    if in_text('ente'):
+    if in_text(['ente']):
         answer = "*QUACK!*"
-    elif in_text('.*f+o+s+s+.*'):
+    elif in_text(['.*f+o+s+s+.*']):
         answer = "*FOOOOOOOSSSS <3!*"
     elif in_text(['turmbraeu', "turmbräu", "git", "love"]):
         answer = "*<3*"
