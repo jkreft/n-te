@@ -9,7 +9,7 @@ import time
 myname = 'physical_ente_bot'
 workdir = os.getcwd() + '/'
 
-with open(workdir + 'authentication.json') as json_data:
+with open(workdir + 'authentications/' + 'auth_' + myname + '.json') as json_data:
     d = json.load(json_data)
     token = d['telegram-key']
 
@@ -50,7 +50,7 @@ def original_ente(bot, update):
         answer = "Mmhhh"
 
     if answer:
-        bot.send_message(chat_id=update.message.chat_id, text=answer)
+        bot.send_message(chat_id=update.message.chat_id, text=answer, parse_mode=ParseMode.MARKDOWN)
     return answer
 
 def fallback(bot, update):
