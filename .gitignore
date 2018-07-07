@@ -107,3 +107,4 @@ venv.bak/
 authentications
 .idea
 logo
+auth.json
