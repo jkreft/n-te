@@ -1,0 +1,9 @@
+[  
+	{"keywords" : ["ente"], "answers" : ["*QUACK!*"], "weight": 1},
+	{"keywords" : [".*f+o+s+s+.*"], "answers" : ["*FOOOOOOOSSSS <3!*"], "weight": 1},
+	{"keywords" : ["turmbraeu", "turmbräu", "git", "love"], "answers" : ["*<3*"], "weight": 1},
+	{"keywords" : ["bread", "brot"], "answers" : ["Mmhhh"], "weight": 1},
+	{"keywords" :  ["svn", "subversion"], "answers" : ["*QUAAAAACKKKK😡!!*"], "weight": 1},
+	{"keywords" : ["kompetenz", "kompetent"],  "answers" : ["Quack quack, Kompetenz!", "Hihi, Kompetenz ... quack ..., 'QUACK! Hast du Kompetenz gesagt? Haha quack'], "weight": 1},
+	{"keywords" : ["bier", "beer"], "answers" : ["Prost!", "🍺", "🍻"], "weight": 1}
+]

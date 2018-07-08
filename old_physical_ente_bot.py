@@ -194,6 +194,81 @@ def check_actions(bot, update):
     return answer
 
 
+def original_ente(bot, update):
+    answer = False
+    text = update.message.text.lower()
+
+    if in_(text, ['ente']):
+        answer = "*QUACK!*"
+    elif in_(text, ['.*f+o+s+s+.*']):
+        answer = "*FOOOOOOOSSSS <3!*"
+    elif in_(text, ['turmbraeu', "turmbräu", "git", "love"]):
+        answer = "*<3*"
+    elif in_(text, ["svn", "subversion"]):
+        answer = "*QUAAAAACKKKK😡!!*"
+    elif in_(text, ["bread", "brot"]):
+        answer = "Mmhhh"
+
+    if answer:
+        bot.send_message(chat_id=update.message.chat_id, text=answer, parse_mode=ParseMode.MARKDOWN)
+    return answer
+
+def hannes_ente(bot, update):
+    answer = False
+    text = update.message.text.lower()
+
+    if in_(text, ['kompetenz', 'kompetent']):
+        answer = shuffle(['Quack quack, Kompetenz!', 'Hihi, Kompetenz ... quack ...', 'QUACK! Hast du Kompetenz gesagt? Haha quack'])
+    if in_(text, ['datum', 'wievielt', 'welcher tag', 'heute']):
+        answer = 'Heute ist ' + str(datetime.today().strftime('%A der %d.%m.%Y')) + ' QUACK!'
+    if in_(text, ['bier', 'beer']):
+        answer = shuffle(['Prost!', '🍺', '🍻'])
+    if in_(text, ['kuchen', 'cake', 'torte']):
+        answer = shuffle(['Mhmmmmm Kuuchen!', '🍰', '🎂'])
+    if in_(text, ['quack', 'quak']):
+        answer = shuffle(['Quack! 🦆  😍', 'Quack?', 'Quack quack quack quack quack ... *QUACK!*', 'Hä? 🦆'])
+    if in_(text, ['eis']):
+        answer = shuffle(['Ich liebe Eis!', 'Juhuu 🍦', 'Mhmmm Eis 🍨'])
+
+    if in_(text, ['geburtstag']):
+        answer = '*Quack Quack Quack Quack Quaack Quaack! 🎁*'
+    if in_(text, ['keine zeit']):
+        answer = shuffle(['Ja ja *Quack*, viel beschäftigt.', 'Schonwieder? Quack', 'Ich hab auch keine Zeit. *Quack*'])
+    if in_(text, ['witzig']):
+        answer = 'nicht witzig'
+    if in_(text, ['spieleabend']):
+        answer = '*Quack!* 🎲 🥊'
+    if in_(text, ['pubquizz', 'pub-quizz', 'pub quizz']):
+        answer = 'Hurrah *Quack!* Aber bitte besser als letztes Mal.'
+    if in_(text, ['dossenheim', 'dosseme']):
+        answer = '❤'
+    if in_(text, ['kaffee']):
+        answer = '*Quack! Quack!* ☕ ❤'
+
+    return answer
+
+
+def parse_text_message_old(bot, update):
+
+    response = None
+    text = update.message.text
+    print(text)
+    conlog('they', text)
+    hannes = hannes_ente(bot, update)
+    if hannes:
+        print(hannes)
+        conlog('me', hannes)
+        response = hannes
+    else:
+        original = original_ente(bot, update)
+        if original:
+            print(original)
+            conlog('me', original)
+            response = original
+    if response:
+        bot.send_message(chat_id=update.message.chat_id, text=response, parse_mode=ParseMode.MARKDOWN)
+    return response
+
 def parse_text_message(bot, update):
     response = None
     text = update.message.text
@@ -211,6 +286,8 @@ def parse_text_message(bot, update):
         conlog('me', response)
         bot.send_message(chat_id=update.message.chat_id, text=response, parse_mode=ParseMode.MARKDOWN)
     return response
+
+
 
 
 def receiver(bot, update):
