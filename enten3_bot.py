@@ -18,29 +18,6 @@ with open(workdir + 'auth.json') as json_data:
     token = d['telegram-key']
 
 
-### Full data logging (work in progress ...) ###
-
-class data:
-    def __init__(self, name, directory=None):
-        self.name = name
-        if not directory:
-            directory = 'bigdata/'
-        if not os.path.exists(directory):
-            os.mkdir(directory)
-        self.dir = directory
-
-    def make(self, entry, entryname=None):
-        dt = str(datetime.now()).replace(' ', '_').replace('.', '').replace(':', '').replace('-', '')
-        if not entryname:
-            entryname = dt + '_entry'
-        else:
-            entryname = dt + '_' + entryname
-        with open(self.dir + entryname + '.json') as entryfile:
-            json.dump(entry, entryfile)
-
-bigdata = data('bigdata', directory=workdir+'bigdata/')
-
-
 ### Conversation logging ###
 
 if not os.path.exists(workdir + 'conlogs/'):
@@ -132,7 +109,6 @@ def fallback(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text=fallback)
 
 def receiver(bot, update):
-    #bigdata.make(update, entryname='update')
     conlog('they', update.message.text)
     original = original_ente(bot, update)
     if original:

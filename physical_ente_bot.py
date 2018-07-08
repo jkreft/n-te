@@ -7,6 +7,8 @@ import os
 from datetime import datetime
 import locale
 import numpy as np
+from pyowm import OWM #Weather API
+
 
 
 locale.setlocale(locale.LC_TIME, ('de', 'UTF-8'))
@@ -56,6 +58,44 @@ def conlog(who, logentry):
     with open(conlogpath, 'a') as conlogfile:
         conlogfile.write(who + ': ' + logentry + '  -  (' + str(datetime.now()) + ')\n')
 
+
+### Weather ###
+
+owmkey = '04f9cff3a5fbb8c457e31444bae05328'
+owm = OWM(owmkey) #initialize the Weather API
+def get_weather(update, location=None):
+    class weatherinfo:
+        def __init__(self, name):
+            self.name = name
+    if location is 'coords':
+        latitude = update.message.location.latitude
+        longitude = update.message.location.longitude
+        obs = owm.weather_at_coords(latitude, longitude)
+    elif location is 'place':
+        #inputplace = update.message.text
+        place = 'Heidelberg, DE'
+        obs = owm.weather_at_place(place)
+    else:
+        return None
+    w = weatherinfo('w')
+    w.object = obs.get_weather() #create the object Weather as w
+    print(w.object) # <Weather - reference time=2013-12-18 09:20, status=Clouds>
+    w.location = obs.get_location() #create a location related to our already created weather object And send the parameters
+    w.status = str(w.object.get_detailed_status())
+    w.placename = str(w.location.get_name())
+    w.time = str(w.object.get_reference_time(timeformat='iso'))
+    w.temperature = str(w.object.get_temperature('celsius').get('temp'))
+    return w
+
+we = get_weather('test', location='place')
+print(we.placename)
+
+def weather_message(w):
+    messagetext = 'Das Wetter'
+    return messagetext
+
+
+##### TELEGRAM BOT #####
 
 ### Define telegram bot (updater, dispatcher) ###
 
@@ -117,10 +157,17 @@ def original_ente(bot, update):
 def hannes_ente(bot, update):
     answer = False
     text = update.message.text.lower()
+
     if in_(text, ['kompetenz', 'kompetent']):
         answer = shuffle(['Quack quack, Kompetenz!', 'Hihi, Kompetenz ... quack ...', 'QUACK! Hast du Kompetenz gesagt? Haha quack'])
     if in_(text, ['datum', 'wievielt', 'welcher tag', 'heute']):
         answer = 'Heute ist ' + str(datetime.today().strftime('%A der %d.%m.%Y')) + ' QUACK!'
+    if in_(text, ['bier', 'beer']):
+        answer = shuffle(['Prost!', '🍺', '🍻'])
+    if in_(text, ['kuchen', 'cake', 'torte']):
+        answer = shuffle(['Mhmmmmm Kuuchen!', '🍰', '🎂'])
+    if in_(text, ['quack', 'quak']):
+        answer = shuffle(['Quack! 🦆  😍', 'Quack?', 'Quack quack quack quack quack ... *QUACK!*', 'Hä? 🦆'])
 
     if answer:
         bot.send_message(chat_id=update.message.chat_id, text=answer, parse_mode=ParseMode.MARKDOWN)
@@ -133,16 +180,18 @@ def fallback(bot, update):
 
 def receiver(bot, update):
     #bigdata.make(update, entryname='update')
-    conlog('they', update.message.text)
-    original = original_ente(bot, update)
-    if original:
-        print(original)
-        conlog('me', original)
+    text = update.message.text
+    conlog('they', text)
+    hannes = hannes_ente(bot, update)
+    if hannes:
+        print(hannes)
+        conlog('me', hannes)
     else:
-        hannes = hannes_ente(bot, update)
-        if hannes:
-            print(hannes)
-            conlog('me', hannes)
+        original = original_ente(bot, update)
+        if original:
+            print(original)
+            conlog('me', original)
+
 
 receiver_handler = MessageHandler(Filters.text, receiver)
 dispatcher.add_handler(receiver_handler)
