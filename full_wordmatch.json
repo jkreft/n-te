@@ -1,0 +1,37 @@
+[
+    
+{"keywords" : ["ente"], "answers" : ["*QUACK!*"], "weight": 1},
+
+{"keywords" : [".*f+o+s+s+.*"], "answers" : ["*FOOOOOOOSSSS <3!*"], "weight": 1},
+
+{"keywords" : ["turmbraeu", "turmbräu", "git", "love"], "answers" : ["*<3*"], "weight": 1},
+
+{"keywords" : ["bread", "brot"], "answers" : ["Mmhhh"], "weight": 1},
+
+{"keywords" :  ["svn", "subversion"], "answers" : ["*QUAAAAACKKKK😡!!*"], "weight": 1},
+
+{"keywords" : ["kompetenz", "kompetent"],  "answers" : ["Quack quack, Kompetenz!", "Hihi, Kompetenz ... quack ...", "QUACK! Hast du Kompetenz gesagt? Haha quack"], "weight": 2},
+
+{"keywords" : ["kuchen", "cake", "torte"], "answers" : ["Mhmmmmm Kuuchen!","🍰", "🎂"], "weight": 2},
+
+{"keywords" : ["bier", "beer"], "answers" : ["Prost!", "🍺", "🍻"], "weight": 2},
+
+{"keywords" : ["quack", "quak"], "answers" : ["'Quack! 🦆  😍", "Quack?", "Quack quack quack quack quack ... *QUACK!*", "Hä? 🦆"], "weight": 2},
+
+{"keywords" : ["eis"], "answers" : ["Ich liebe Eis!", "Juhuu 🍦", "Mhmmm Eis 🍨"], "weight": 2},
+
+{"keywords" : ["geburtstag", "birthday", "b-day"], "answers" : ["*Quack Quack Quack Quack Quaack Quaack!* 🎁"], "weight": 1},
+
+{"keywords" : ["keine zeit"], "answers" : ["Ja ja *Quack*, viel beschäftigt.", "Schonwieder? Quack", "Ich hab auch keine Zeit. *Quack*"], "weight": 1},
+
+{"keywords" : ["witzig"], "answers" : ["Nicht witzig. Quack."], "weight": 2},
+
+{"keywords" : ["spieleabend"], "answers" : ["*Quack!* 🎲 🥊"], "weight": 2},
+
+{"keywords" : ["pubquiz", "pub-quiz", "pub quiz"], "answers" : ["Hurrah *Quack!* Aber bitte besser als letztes Mal."], "weight": 2},
+
+{"keywords" : ["'dossenheim', 'dosseme"], "answers" : ["We ❤ Dosseme", "#Dosseme"], "weight": 2},
+
+{"keywords" : ["kaffee", "caffee", "caffée"], "answers" : ["*Quack! Quack!* ☕ ❤", "*Kaffee* 😍"], "weight": 2}
+
+]
