@@ -30,7 +30,7 @@
 
 {"keywords" : ["pubquiz", "pub-quiz", "pub quiz"], "answers" : ["Hurrah *Quack!* Aber bitte besser als letztes Mal."], "weight": 2},
 
-{"keywords" : ["'dossenheim', 'dosseme"], "answers" : ["We ❤ Dosseme", "#Dosseme"], "weight": 2},
+{"keywords" : ["dossenheim", "dosseme"], "answers" : ["We ❤ Dosseme", "#Dosseme"], "weight": 2},
 
 {"keywords" : ["kaffee", "caffee", "caffée"], "answers" : ["*Quack! Quack!* ☕ ❤", "*Kaffee* 😍"], "weight": 2}
 
