@@ -126,7 +126,7 @@ class behaviour:
                         return None
                     elif args[0] == 'analysis':
                         bot.send_message(chat_id=update.message.chat_id, text='Analysis mode. Enter query:', parse_mode=ParseMode.MARKDOWN)
-                        self.behav['analysis']['state'] = 1
+                        self.behav['analysis']['state'] = 0
                     else:
                         bot.send_message(chat_id=update.message.chat_id, text='But I am very sorry, I do not understand.', parse_mode=ParseMode.MARKDOWN)
             return None

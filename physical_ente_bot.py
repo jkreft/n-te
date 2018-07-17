@@ -26,13 +26,15 @@ class data:
     def __init__(self, name, filepath=None):
         self.name = name
         if not filepath:
-            filepath = workdir + '/bigdata/bigdata_' + myname + '.json'
+            filepath = workdir + 'bigdata/bigdata_' + myname + '.json'
         self.filepath = filepath
         self.dictionary = {}
         if os.path.exists(filepath):
             with open(filepath, 'r') as bigdatafile:
                 self.dictionary = json.load(bigdatafile)
         else:
+            if not os.path.exists(workdir + 'bigdata'):
+                os.mkdir(workdir +  'bigdata')
             with open(filepath, 'w') as bigdatafile:
                 json.dump({}, bigdatafile)
     def store(self):
@@ -68,6 +70,45 @@ def conlog(who, logentry):
 
 ### Wetter ###
 
+# Openweathermap Weather codes and corressponding emojis
+thunderstorm = u'\U0001F4A8'    # Code: 200's, 900, 901, 902, 905
+drizzle = u'\U0001F4A7'         # Code: 300's
+rain = u'\U00002614'            # Code: 500's
+snowflake = u'\U00002744'       # Code: 600's snowflake
+snowman = u'\U000026C4'         # Code: 600's snowman, 903, 906
+atmosphere = u'\U0001F301'      # Code: 700's foogy
+clearSky = u'\U00002600'        # Code: 800 clear sky
+fewClouds = u'\U000026C5'       # Code: 801 sun behind clouds
+clouds = u'\U00002601'          # Code: 802-803-804 clouds general
+hot = u'\U0001F525'             # Code: 904
+defaultEmoji = u'\U0001F300'    # default emojis
+
+def getEmoji(weatherID):
+    if weatherID:
+        if str(weatherID)[0] == '2' or weatherID == 900 or weatherID==901 or weatherID==902 or weatherID==905:
+            return thunderstorm
+        elif str(weatherID)[0] == '3':
+            return drizzle
+        elif str(weatherID)[0] == '5':
+            return rain
+        elif str(weatherID)[0] == '6' or weatherID==903 or weatherID== 906:
+            return snowflake + ' ' + snowman
+        elif str(weatherID)[0] == '7':
+            return atmosphere
+        elif weatherID == 800:
+            return clearSky
+        elif weatherID == 801:
+            return fewClouds
+        elif weatherID==802 or weatherID==803 or weatherID==803:
+            return clouds
+        elif weatherID == 904:
+            return hot
+        else:
+            return defaultEmoji    # Default emoji
+
+    else:
+        return defaultEmoji   # Default emoji
+
 class weatherinfo:
     def __init__(self, name):
         self.name = name
@@ -86,12 +127,12 @@ def weather_message(update):
         location = 'Heidelberg, DE'
         today, tomorrow, dayafter = get_weather_forecast(location)
         messagetext = 'Das Wetter in ' + location +\
-                      ':\n  Heute:\n    Temperatur ' + str(today.get_temperature('celsius').get('day')) +\
-                      '\n    Status: ' + str(today.get_detailed_status()) + '\n  Morgen:\n    Temperatur: ' +\
-                      str(tomorrow.get_temperature('celsius').get('day')) +\
-                      '\n    Status: ' + str(tomorrow.get_detailed_status()) + '\n Übermorgen:\n    Temperatur: ' +\
-                      str(dayafter.get_temperature('celsius').get('day')) +\
-                      '\n    Status: ' + str(dayafter.get_detailed_status())
+                      ':\n  Heute:\n    Temperatur: ' + str(round(today.get_temperature('celsius').get('day'), 0))[:-2] + ' °C' +\
+                      '\n    Status: ' + str(today.get_detailed_status()) + ' ' + getEmoji(today.get_weather_code()) + '\n  Morgen:\n    Temperatur: ' +\
+                      str(round(tomorrow.get_temperature('celsius').get('day'), 0))[:-2] + ' °C' +\
+                      '\n    Status: ' + str(tomorrow.get_detailed_status()) + ' ' + getEmoji(tomorrow.get_weather_code()) + '\n Übermorgen:\n    Temperatur: ' +\
+                      str(round(dayafter.get_temperature('celsius').get('day'), 0))[:-2] + ' °C' +\
+                      '\n    Status: ' + str(dayafter.get_detailed_status()) + ' ' + getEmoji(dayafter.get_weather_code())
         return messagetext
 
     except:
@@ -114,17 +155,108 @@ def mensa_message(tag):
         for day in days:
             if day.attrib['date'] == datum.strftime("%Y-%m-%d"):
                 speiseplan = day
-        mensamessage = ['*Speiseplan* Mensa INF für ' + tag + ' (' + datum.strftime("%d.%m.") + '):\n']
-        for kategorie in speiseplan.findall('./{http://openmensa.org/open-mensa-v2}category'):
-            mensamessage.append('\n*' + kategorie.attrib['name'] + '*')
-            for essen in kategorie.findall('./{http://openmensa.org/open-mensa-v2}meal'):
-                if essen[0].text.split(' ')[0] == 'Schlemmerbuffet':
-                    mensamessage.append('\n  ' + 'Schlemmerbuffet ... bla bla ...')
-                else:
-                    mensamessage.append('\n  ' + ' '.join(essen[0].text.split('\n')))
-        return ' '.join(mensamessage)
+                print(day)
+        if speiseplan.findall('./{http://openmensa.org/open-mensa-v2}closed'):
+            mensamessage = tag.capitalize() + ' (' + datum.strftime("%d.%m.") + ') gibts *kein Essen!* Quack'
+            return mensamessage
+        else:
+            mensamessage = ['*Speiseplan* Mensa INF für ' + tag + ' (' + datum.strftime("%d.%m.") + '):\n']
+            for kategorie in speiseplan.findall('./{http://openmensa.org/open-mensa-v2}category'):
+                if not (kategorie.attrib['name'] == 'B') and not kategorie.attrib['name'] == 'A+B':
+                    mensamessage.append('\nBei *' + kategorie.attrib['name'] + "* gibt's:\n")
+                    for essen in kategorie.findall('./{http://openmensa.org/open-mensa-v2}meal'):
+                        if kategorie.attrib['name'] == 'D':
+                            gerichtD = essen[0].text.split(',\n')
+                            for komponente in gerichtD:
+                                if in_(komponente, ['Tagessuppe', 'Salat der Saison']):
+                                    gerichtD.remove(komponente)
+                            mensamessage.append(', '.join(gerichtD) + '\n')
+                        if kategorie.attrib['name'] == 'E':
+                            gericht = ' '.join(essen[0].text.split())
+                            print(gericht)
+                            if not in_(gericht, ['Tagessuppe', 'Salat der Saison']):
+                                mensamessage.append(gericht + '\n')
+            return ' '.join(mensamessage)
     except:
         return 'Mensa geht grade nicht *Quack*'
+
+
+### Musixmatch ###
+
+from musixmatch import Musixmatch
+musixmatcher = Musixmatch('82adb4026cc5a4c29babc2818c0713e2')
+
+def get_lyrics(info):
+    try:
+        trackobject = musixmatcher.matcher_track_get(info, info)
+        songname = trackobject['message']['body']['track']['track_name']
+        artist =  trackobject['message']['body']['track']['artist_name']
+        album = trackobject['message']['body']['track']['album_name']
+        try:
+            lyricsobject = musixmatcher.track_lyrics_get(trackobject['message']['body']['track']['track_id'])
+            print(lyricsobject)
+            lyrics = '\n'.join(lyricsobject['message']['body']['lyrics']['lyrics_body'].split('\n')[:-2])
+            print(lyrics)
+            output = 'Lyrics zu ' + songname + ' von ' + artist + ':\n \n' + lyrics
+            return output
+        except:
+            output = 'Leider kann ich zu ' + songname + ' von ' + artist + ' keine Lyrics finden.'
+            return output
+    except:
+        return None
+
+### Sag mal, Ente ###
+
+import rubberduck
+from mtranslate import translate
+
+def ok_ente(bot, update, trigger=None):
+    response = None
+    text = update.message.text
+    if not trigger:
+        trigger = 'ok ente'
+    position = text.lower().find(trigger) + len(trigger)
+    query = text[position:]
+
+    if in_(text, ['lyrics']):
+        lyricsinfo = query[query.find('lyrics') + 5:]
+        response = get_lyrics(lyricsinfo)
+
+    elif in_(text, [' such']):
+        triggerindex = [idx for idx, s in enumerate(text.split(' ')) if 'such' in s][0]
+        searchterm = query[triggerindex + 4:]
+        try:
+            searchtermEN = translate(searchterm, 'en')
+        except:
+            return 'Ich kann so leider keine Antwort finden. Du könntest versuchen, die Frage auf Englisch zu stellen.'
+        if not searchterm:
+            return 'Wie kann ich helfen?'
+
+        print('Trying DuckDuckGo API:', searchtermEN)
+        ddg_json = rubberduck.DuckDuckGoJSON(rubberduck.search(searchtermEN, bang=0, no_redirect=1, skip_disambig=1))
+        results_priority = [ddg_json.answer, ddg_json.abstract, None]
+        for result in results_priority:
+            if result:
+                try:
+                    response = translate(result, 'de')
+                    response = response + '\nQuelle: [DuckDuckGo.com](https://duckduckgo.com/?q=' + '+'.join(searchtermEN.split()) + ')'
+                except:
+                    response = 'Antwort leider nur auf Englisch:\n' + result
+                break
+        if not response:
+            print('Trying Wikipedia EN:', searchtermEN)
+            bang = 'wikipedia'
+            wikiresult = rubberduck.search(searchtermEN, bang=bang, no_redirect=0, skip_disambig=1)
+            try:
+                responseURL = wikiresult.url
+                response = 'Hier kannst du selber auf [Wikipedia](' + responseURL + ') nachschauen *QUACK*'
+            except:
+                response = 'Habe leider nichts gefunden *Quack*'
+    if not response:
+        response = 'Ich verstehe leider die Frage nicht *Quack*'
+    print(response)
+
+    return response
 
 
 ####### TELEGRAM BOT #######
@@ -132,7 +264,7 @@ def mensa_message(tag):
 ##### Commands and command handler functions) #####
 
 def start(bot, update):
-    #bot.send_message(chat_id=update.message.chat_id, text="Quack, ich bin Ente!")
+    bot.send_message(chat_id=update.message.chat_id, text="Quack, ich bin Ente!")
     return None
 
 def license(bot, update):
@@ -172,26 +304,32 @@ def check_user(bot, update):
         users[user.username] = {'counter': 0}
 
     # Punkt punkt punkt
-#    lastthree = text.replace(" ", "")[-3:]
-#    if user.username == 'digital_ostrich' and lastthree == '...':
-#        bot.send_message(chat_id=update.message.chat_id,
-#                         text=shuffle(['Schon wieder diese drei Punkte ...',
-#                                       'Jonah, ich wundere mich doch sehr über deinen Tonfall ...',
-#                                       'Was ist denn das schon wieder für ein passiv-aggressiver Ton, Jonah?']),
-#                         reply_to_message_id=update.message.message_id, parse_mode=ParseMode.MARKDOWN)
-#        return 'lastthree'
+    lastthree = text.replace(" ", "")[-3:]
+    if user.username == 'digital_ostrich' and lastthree == '...':
+        bot.send_message(chat_id=update.message.chat_id,
+                         text=shuffle(['Schon wieder diese drei Punkte ...',
+                                       'Jonah, ich wundere mich doch sehr über deinen Tonfall ...',
+                                       'Was ist denn das schon wieder für ein passiv-aggressiver Ton, Jonah?']),
+                         reply_to_message_id=update.message.message_id, parse_mode=ParseMode.MARKDOWN)
+        return 'lastthree'
 
     # Nerv nicht
     if in_(text, ['ente']):
         users[user.username]['counter'] += 1
     else:
         users[user.username]['counter'] = 0
-    if users[user.username]['counter'] >= 3:
+    if users[user.username]['counter'] >= 4:
         bot.send_message(chat_id=update.message.chat_id,
                          text=shuffle(["Nerv' nicht, " + user.first_name + '!', user.first_name + ' du nervst ...',
-                                       'Alter! ' + user.first_name]), parse_mode=ParseMode.MARKDOWN)
+                                       "Alter nerv' mich nicht " + user.first_name] + '!'), parse_mode=ParseMode.MARKDOWN)
         users[user.username]['counter'] = 0
         return 'nervnicht'
+    if in_(text, ['ente ist']) and in_(text, ['cool', 'toll', 'gute ente', 'super', 'die beste']):
+        bot.send_message(chat_id=update.message.chat_id,
+                         text='Ja, das bin ich, ' + user.first_name,
+                         parse_mode=ParseMode.MARKDOWN)
+        return 'ente cool'
+
 
     # Hallo Lukas
     if user.username == 'lukas_mandok' and in_(text, ['ente']):
@@ -199,17 +337,27 @@ def check_user(bot, update):
         return 'hallolukas'
 
 def check_actions(bot, update):
-    text = update.message.text
+    text = update.message.text.lower()
 
-#    if in_(text, ['mensa', 'speiseplan', 'was gibt es', 'zu essen']) and in_(text, ['morgen']):
-#        answer = mensa_message('morgen')
-#    elif in_(text, ['mensa', 'speiseplan']) or (in_(text, ['was gibt es', 'zu essen']) and in_(text, ['heute'])):
-#        answer = mensa_message('heute')
+    # OK ente
+    if in_(text, ['ok ente']):
+        try:
+            answer = ok_ente(bot, update)
+        except:
+            answer = 'Not OK, ' + update.message.from_user.first_name
 
-#    elif in_(text, ['wetter', 'regen', 'regnen', 'schön sein', 'schön ist', 'morgen gut', 'sonne']):
-#        answer = weather_message('Heidelberg')
+    # Mensa
+    elif in_(text, ['mensa', 'speiseplan', 'was gibt es', 'zu essen']) and in_(text, ['morgen']):
+        answer = mensa_message('morgen')
+    elif in_(text, ['mensa', 'speiseplan']) or (in_(text, ['was gibt es', 'zu essen']) and in_(text, ['heute'])):
+        answer = mensa_message('heute')
 
-    if in_(text, ['datum', 'wievielt', 'welcher tag']) or (in_(text, ['heute']) and in_(text, ['tag'])):
+    # Wetter
+    elif in_(text, ['wetter', 'regen', 'regnen', 'schön sein', 'schön ist', 'morgen gut', 'sonne']):
+        answer = weather_message('Heidelberg')
+
+    # Datum von Heute
+    elif in_(text, ['datum', 'wievielt', 'welcher tag']) or (in_(text, ['heute']) and in_(text, ['tag'])):
         answer = 'Heute ist ' + str(datetime.datetime.today().strftime('%A der %d.%m.%Y')) + ' QUACK!'
 
     else:
@@ -223,7 +371,6 @@ def parse_text_message(bot, update):
     conlog('they', text)
 
     userspecific = check_user(bot, update)
-    response = userspecific
     if not userspecific:
         action = check_actions(bot, update)
         if action:
@@ -243,11 +390,10 @@ def receiver(bot, update):
     bigdata.add(update, type='updates')
     if update.message.text:
         textresponse = parse_text_message(bot, update)
-        if not textresponse:
-            print('I do not know what to say!')
 
 
 ### The true beginning
+
 # Set locale, initialize working directory
 locale.setlocale(locale.LC_TIME, ('de', 'UTF-8'))
 workdir = os.getcwd() + '/'
@@ -302,5 +448,3 @@ dispatcher.add_handler(receiver_handler)
 # Start the bot
 updater.start_polling()
 updater.idle()
-
-

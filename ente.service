@@ -1,3 +1,0 @@
-[Service]
-Type=simple
-ExecStart=/usr/bin/python /root/pidora-keyboard.py
